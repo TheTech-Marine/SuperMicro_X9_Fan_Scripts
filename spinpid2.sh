@@ -96,7 +96,7 @@ function read_fan_data {
 ##############################################
 function CPU_check_adjust {
    #   Another IPMITOOL method of checking CPU temp:
-   #   CPU_TEMP=$($IPMITOOL sdr | grep "CPU Temp" | grep -Eo '[0-9]{2,5}')
+   #   CPU_TEMP=$($IPMITOOL sdr | grep "CPU. Temp" | grep -Eo '[0-9]{2,5}')
    if [[ $CPU_TEMP_SYSCTL == 1 ]]; then    
        # Find hottest CPU core
        MAX_CORE_TEMP=0
@@ -107,7 +107,10 @@ function CPU_check_adjust {
        done
        CPU_TEMP=$MAX_CORE_TEMP
    else
-       CPU_TEMP=$($IPMITOOL sensor get "CPU Temp" | awk '/Sensor Reading/ {print $4}')
+       CPU1_TEMP=$($IPMITOOL sensor get "CPU1 Temp" | awk '/Sensor Reading/ {print $4}')
+	   CPU2_TEMP=$($IPMITOOL sensor get "CPU2 Temp" | awk '/Sensor Reading/ {print $4}')
+	   if [[ $CPU1_TEMP -gt $CPU2_TEMP ]]; then MAX_CORE_TEMP=$CPU1_TEMP; else MAX_CORE_TEMP=$CPU2_TEMP; fi
+	   CPU_TEMP=$MAX_CORE_TEMP
    fi
 
    DUTY_CPU_LAST=$DUTY_CPU

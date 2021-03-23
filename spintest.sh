@@ -11,7 +11,7 @@ VERSION="2021-03-04"
 
 #################  LOG SETTINGS ################
 # Create logfile and sends all stdout and stderr to the log, as well as to the console.
-LOG=/mnt/StripedMirror/Software/Scripts/spintest.log  # Change to your desired log location/name
+LOG=/mnt/StripedMirror/Software/Scripts/X9_Fan_Scripts/logs/spintest.log  # Change to your desired log location/name
 exec > >(tee -i $LOG) 2>&1
 
 #################  IPMITOOL SETTING ################

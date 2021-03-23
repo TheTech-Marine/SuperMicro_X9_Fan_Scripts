@@ -8,7 +8,7 @@ VERSION="2021-03-04"
 # add '-a' to the tee command.
 # Change to your desired log location/name: 
 # LOG=/mnt/MyPool/MyDataSet/MyDirectory/spincheck.log
-LOG=/mnt/StripedMirror/Software/Scripts/spincheck.log
+LOG=/mnt/StripedMirror/Software/Scripts/X9_Fan_Scripts/logs/spincheck.log
 exec > >(tee -i $LOG) 2>&1
 
 SP=33.57	#  Setpoint mean drive temp (C), for information only
@@ -148,9 +148,12 @@ function DRIVES_check {
 #####################################################
 
 # Check if CPU Temp is available via sysctl (will likely fail in a VM)
+#hard coded cores to 2 for X9DRH-7TF
 CPU_TEMP_SYSCTL=$(($(sysctl -a | grep dev.cpu.0.temperature | wc -l) > 0))
 if [[ $CPU_TEMP_SYSCTL == 1 ]]; then
 	CORES=$(($(sysctl -n hw.ncpu)-1))
+else
+	CORES=2
 fi
 
 echo "How many whole minutes do you want between spin checks?"
@@ -211,7 +214,12 @@ while [ 1 ] ; do
        done
        CPU_TEMP=$MAX_CORE_TEMP
    else
-       CPU_TEMP=$($IPMITOOL sensor get "CPU Temp" | awk '/Sensor Reading/ {print $4}')
+	#fixed ipmitool sensor names
+       #CPU_TEMP=$($IPMITOOL sensor get "CPU Temp" | awk '/Sensor Reading/ {print $4}')
+	   CPU1_TEMP=$($IPMITOOL sensor get "CPU1 Temp" | awk '/Sensor Reading/ {print $4}')
+	   CPU2_TEMP=$($IPMITOOL sensor get "CPU2 Temp" | awk '/Sensor Reading/ {print $4}')
+	   if [[ $CPU1_TEMP -gt $CPU2_TEMP ]]; then MAX_CORE_TEMP=$CPU1_TEMP; else MAX_CORE_TEMP=$CPU2_TEMP; fi
+	   CPU_TEMP=$MAX_CORE_TEMP
    fi
 
    # Print data.  If a fan doesn't exist, RPM value will be null.  These expressions 
